@@ -1,0 +1,25 @@
+[project]
+name = "QuickCart"
+version = "0.1.0"
+description = "Quick-commerce customer support agent built with LangGraph"
+readme = "README.md"
+authors = [
+    { name = "piyushjha0409", email = "peeyush0409@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "langchain>=1.4.2",
+    "langchain-openai>=1.6.2",
+    "langgraph>=1.2.11",
+    "langgraph-checkpoint-postgres>=3.1.2",
+    "psycopg[binary]>=3.3.6",
+    "python-dotenv>=1.2.3",
+    "sqlalchemy>=2.1.0",
+]
+
+[project.scripts]
+quickcart = "quickcart.main:main"
+
+[build-system]
+requires = ["uv_build>=0.12.1,<0.13.0"]
+build-backend = "uv_build"
