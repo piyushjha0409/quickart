@@ -38,7 +38,6 @@ agent_builder.add_edge("tool_node", "llm_call")
 agent = agent_builder.compile()
 
 
-
 # main driver function
 def main() -> None:
     messages = [HumanMessage(content="Add 12 and 24, then multiply the result by 12.")]
