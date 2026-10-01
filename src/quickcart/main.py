@@ -1,7 +1,10 @@
-import operator
+import uuid
+from datetime import datetime, timedelta, timezone
 from typing import Literal
 from langchain.messages import HumanMessage
+from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.graph import StateGraph, START, END
+from .db.init import create_table
 from .node import tool_node, llm_call
 from .state import ClientContext, SupportState
 
@@ -35,16 +38,61 @@ agent_builder.add_conditional_edges("llm_call", should_continue, ["tool_node", E
 agent_builder.add_edge("tool_node", "llm_call")
 
 # Compile the agent
-agent = agent_builder.compile()
+# In-memory checkpointer keeps the conversation across turns within one process.
+# Swap for the Postgres checkpointer when the API server lands.
+agent = agent_builder.compile(checkpointer=InMemorySaver())
 
 
-# main driver function
+
+
+def demo_context() -> ClientContext:
+    """Stand-in for the authenticated payload the chat UI will send with each turn.
+    Replace with real seeded data once the seed script exists."""
+    now = datetime.now(timezone.utc)
+    return {
+        "user_id": "u_1042",
+        "location": {"lat": 12.9716, "lng": 77.5946, "store_id": "blr_koramangala_02"},
+        "credits": 85.0,
+        "recent_orders": [
+            {
+                "id": "ord_88213",
+                "placed_at": (now - timedelta(minutes=25)).isoformat(),
+                "status": "delivered",
+                "total": 642.0,
+            }
+        ],
+    }
+
+
+def chat() -> None:
+    """Interactive multi-turn session with one test customer."""
+    create_table()
+
+    config = {"configurable": {"thread_id": str(uuid.uuid4())}}
+    context = demo_context()
+
+    print(f"QuickCart support — signed in as {context['user_id']}. Type 'exit' to quit.\n")
+    while True:
+        try:
+            text = input("you> ").strip()
+        except (EOFError, KeyboardInterrupt):
+            print()
+            break
+        if not text:
+            continue
+        if text.lower() in {"exit", "quit", "q"}:
+            break
+
+        # Context is passed every turn so a client can refresh it (new order, credits change).
+        result = agent.invoke(
+            {"messages": [HumanMessage(content=text)], "context": context},
+            config=config,
+        )
+        print(f"agent> {result['messages'][-1].content}\n")
+
+
 def main() -> None:
-    messages = [HumanMessage(content="Add 12 and 24, then multiply the result by 12.")]
-    result = agent.invoke({"messages": messages})
-
-    for message in result["messages"]:
-        message.pretty_print()
+    chat()
 
 
 if __name__ == "__main__":

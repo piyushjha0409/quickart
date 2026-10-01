@@ -2,18 +2,18 @@
 services:
   db:
     image: pgvector/pgvector:pg16
-    container_name: quickart-db
+    container_name: quickcart-db
     restart: unless-stopped
     environment:
-      POSTGRES_USER: quickart
-      POSTGRES_PASSWORD: quickart
-      POSTGRES_DB: quickart
+      POSTGRES_USER: quickcart
+      POSTGRES_PASSWORD: quickcart
+      POSTGRES_DB: quickcart
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U quickart -d quickart"]
+      test: ["CMD-SHELL", "pg_isready -U quickcart -d quickcart"]
       interval: 5s
       timeout: 3s
       retries: 10
