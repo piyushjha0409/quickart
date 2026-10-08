@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QuickCart — groceries in minutes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Onest:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="wordmark" href="/" aria-label="QuickCart home">quick<span>cart</span></a>
+
+    <button class="eta" type="button" aria-label="Delivery location: Koramangala, Bengaluru">
+      <span class="eta-ring" aria-hidden="true"><span>9</span></span>
+      <span class="eta-text">
+        <strong>Delivery in 9 min</strong>
+        <small>Koramangala, Bengaluru ▾</small>
+      </span>
+    </button>
+
+    <label class="search">
+      <span class="visually-hidden">Search products</span>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+      <input type="search" placeholder="Search for atta, milk, chips…">
+    </label>
+
+    <div class="wallet" title="QuickCart credits">
+      <small>Credits</small>
+      <strong id="credits">₹—</strong>
+    </div>
+
+    <button class="cart" type="button" id="cart-button">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.4 11.2a1 1 0 0 0 1 .8h9.2a1 1 0 0 0 1-.8L20 8H6.2"/><circle cx="9" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/></svg>
+      <span id="cart-label">Cart</span>
+    </button>
+  </header>
+
+  <nav class="categories" aria-label="Categories">
+    <a href="#bestsellers" class="active">All</a>
+    <a href="#bestsellers">Fruits &amp; vegetables</a>
+    <a href="#bestsellers">Dairy, bread &amp; eggs</a>
+    <a href="#snacks">Snacks &amp; munchies</a>
+    <a href="#snacks">Cold drinks</a>
+    <a href="#bestsellers">Atta, rice &amp; dal</a>
+    <a href="#snacks">Instant food</a>
+    <a href="#bestsellers">Cleaning essentials</a>
+  </nav>
+
+  <main>
+    <section class="last-order" id="last-order" hidden>
+      <div class="last-order-info">
+        <span class="status-dot" aria-hidden="true"></span>
+        <div>
+          <p class="last-order-title" id="last-order-title">Your last order</p>
+          <p class="last-order-meta" id="last-order-meta"></p>
+        </div>
+      </div>
+      <button type="button" class="btn-ghost" data-open-chat data-prefill="I have a problem with my last order">Get help with this order</button>
+    </section>
+
+    <section class="hero">
+      <div class="hero-copy">
+        <h1>Forgot the curd?<br>It'll be here before the dal boils.</h1>
+        <p>Groceries and essentials from the Koramangala store, packed in 2 minutes and at your door in about 9.</p>
+      </div>
+      <div class="hero-offer">
+        <span class="offer-tag">Free delivery</span>
+        <p>on orders above ₹199 until midnight</p>
+      </div>
+    </section>
+
+    <section class="shelf" id="bestsellers">
+      <h2>Bestsellers near you</h2>
+      <div class="grid" data-shelf="bestsellers"></div>
+    </section>
+
+    <section class="shelf" id="snacks">
+      <h2>Snacks &amp; cold drinks</h2>
+      <div class="grid" data-shelf="snacks"></div>
+    </section>
+  </main>
+
+  <!-- Support chat widget -->
+  <button class="chat-launcher" type="button" id="chat-launcher" aria-controls="chat-panel" aria-expanded="false">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg>
+    <span>Help</span>
+  </button>
+
+  <section class="chat-panel" id="chat-panel" role="dialog" aria-label="QuickCart support chat" hidden>
+    <header class="chat-head">
+      <div class="agent-id">
+        <span class="agent-avatar" aria-hidden="true">Q</span>
+        <div>
+          <strong>QuickCart Support</strong>
+          <small><span class="online-dot" aria-hidden="true"></span>Replies in a few seconds</small>
+        </div>
+      </div>
+      <div class="chat-head-actions">
+        <button type="button" class="icon-btn" id="chat-reset" title="Start a new chat" aria-label="Start a new chat">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.3-5.6M4 4v4h4"/></svg>
+        </button>
+        <button type="button" class="icon-btn" id="chat-close" title="Minimise" aria-label="Minimise chat">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="chat-context" id="chat-context" hidden></div>
+
+    <div class="chat-log" id="chat-log" aria-live="polite">
+      <div class="chat-welcome" id="chat-welcome">
+        <p class="welcome-title">Hi! What can we help with?</p>
+        <p>Ask about an order, a missing or damaged item, refunds, or your credits.</p>
+        <div class="suggestions">
+          <button type="button" data-suggest>An item is missing from my order</button>
+          <button type="button" data-suggest>Where is my order?</button>
+          <button type="button" data-suggest>I got a damaged item</button>
+          <button type="button" data-suggest>How many credits do I have?</button>
+        </div>
+      </div>
+    </div>
+
+    <form class="chat-input" id="chat-form">
+      <label class="visually-hidden" for="chat-text">Message</label>
+      <textarea id="chat-text" rows="1" placeholder="Type your message" autocomplete="off"></textarea>
+      <button type="submit" class="send" aria-label="Send message" id="chat-send">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+    </form>
+    <p class="chat-foot">You're chatting with an AI agent. Ask for a person anytime.</p>
+  </section>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

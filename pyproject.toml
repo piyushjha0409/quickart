@@ -8,6 +8,7 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
+    "fastapi>=0.142.4",
     "langchain>=1.4.2",
     "langchain-openai>=1.6.2",
     "langgraph>=1.2.11",
@@ -15,10 +16,12 @@ dependencies = [
     "psycopg[binary]>=3.3.6",
     "python-dotenv>=1.2.3",
     "sqlalchemy>=2.1.0",
+    "uvicorn[standard]>=0.54.0",
 ]
 
 [project.scripts]
 quickcart = "quickcart.main:main"
+quickcart-web = "quickcart.server:run"
 
 [build-system]
 requires = ["uv_build>=0.12.1,<0.13.0"]
