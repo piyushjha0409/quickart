@@ -1,14 +1,23 @@
-from langchain.messages import SystemMessage, ToolMessage
+from langchain.messages import HumanMessage, SystemMessage, ToolMessage
+from langchain_core.runnables import RunnableConfig
 
-from .init import model_with_tools, tool_by_name
+from .init import tool_by_name
+from .models import DEFAULT_MODEL, choose_effort, get_model
 from .prompts import build_system_prompt
 
 
-def llm_call(state: dict):
+def llm_call(state: dict, config: RunnableConfig):
     """LLM decides to call a tool or not"""
+    settings = config.get("configurable", {})
+    effort = settings.get("effort", "auto")
+    if effort == "auto":
+        last_human = next(m for m in reversed(state["messages"]) if isinstance(m, HumanMessage))
+        effort, _ = choose_effort(last_human.text)
+    model = get_model(settings.get("model", DEFAULT_MODEL), effort)
+
     system = SystemMessage(content=build_system_prompt(state.get("context")))
     return {
-        "messages": [model_with_tools.invoke([system] + state["messages"])],
+        "messages": [model.invoke([system] + state["messages"])],
         "llm_calls": state.get("llm_calls", 0) + 1,
     }
 

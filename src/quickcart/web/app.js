@@ -117,6 +117,21 @@ async function loadContext() {
 
 /* ---------- Chat widget ---------- */
 
+async function loadModels() {
+  try {
+    const res = await fetch("/api/models");
+    if (!res.ok) return;
+    const { models, default: fallback } = await res.json();
+    modelSelect.innerHTML = models.map((m) => {
+      modelLabels[m.id] = m.label;
+      const [input, , output] = m.price;
+      return `<option value="${m.id}" title="$${input} in / $${output} out per 1M tokens" ${m.id === fallback ? "selected" : ""}>${m.label}</option>`;
+    }).join("");
+  } catch {
+    // Without the list the server's default model answers.
+  }
+}
+
 const launcher = document.getElementById("chat-launcher");
 const panel = document.getElementById("chat-panel");
 const log = document.getElementById("chat-log");
@@ -124,6 +139,9 @@ const welcome = document.getElementById("chat-welcome");
 const form = document.getElementById("chat-form");
 const input = document.getElementById("chat-text");
 const sendBtn = document.getElementById("chat-send");
+const modelSelect = document.getElementById("chat-model");
+const effortSelect = document.getElementById("chat-effort");
+const modelLabels = {};
 
 // One conversation per page load; the server keeps its history under this id.
 let threadId = null;
@@ -153,7 +171,7 @@ document.querySelectorAll("[data-open-chat]").forEach((btn) =>
 
 document.getElementById("chat-reset").addEventListener("click", () => {
   threadId = null;
-  log.querySelectorAll(".msg, .typing").forEach((el) => el.remove());
+  log.querySelectorAll(".msg, .msg-meta, .typing").forEach((el) => el.remove());
   welcome.hidden = false;
   input.value = "";
   input.focus();
@@ -250,13 +268,24 @@ async function send(raw) {
     const res = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: text, thread_id: threadId }),
+      body: JSON.stringify({
+        message: text,
+        thread_id: threadId,
+        model: modelSelect.value || undefined,
+        effort: effortSelect.value,
+      }),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     threadId = data.thread_id;
     typing.remove();
     addMessage("agent", renderMarkdown(data.reply));
+    const meta = document.createElement("p");
+    meta.className = "msg-meta";
+    const effort = data.effort_reason ? `${data.effort} (auto: ${data.effort_reason})` : data.effort;
+    meta.textContent = `${modelLabels[data.model] || data.model} · ${effort} · ${data.seconds.toFixed(1)} s · $${data.cost_usd.toFixed(4)}`;
+    log.appendChild(meta);
+    log.scrollTop = log.scrollHeight;
   } catch {
     typing.remove();
     const err = addMessage("error", "<p>Message not delivered. Check that the server is running, then retry.</p><button type=\"button\">Retry</button>");
@@ -273,3 +302,4 @@ async function send(raw) {
 
 renderShelves();
 loadContext();
+loadModels();

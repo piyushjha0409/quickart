@@ -108,6 +108,23 @@
       </div>
     </header>
 
+    <div class="chat-settings">
+      <label>
+        <span>Model</span>
+        <select id="chat-model"></select>
+      </label>
+      <label>
+        <span>Effort</span>
+        <select id="chat-effort">
+          <option value="auto" selected>Auto</option>
+          <option value="minimal">Minimal</option>
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+        </select>
+      </label>
+    </div>
+
     <div class="chat-context" id="chat-context" hidden></div>
 
     <div class="chat-log" id="chat-log" aria-live="polite">

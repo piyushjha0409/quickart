@@ -88,7 +88,7 @@ def chat() -> None:
             {"messages": [HumanMessage(content=text)], "context": context},
             config=config,
         )
-        print(f"agent> {result['messages'][-1].content}\n")
+        print(f"agent> {result['messages'][-1].text}\n")
 
 
 def main() -> None:
